@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AgroFull</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --gr:#2D5A27;--grl:#4A8A3F;--grp:#E8F5E3;--gem:#00A86B;
+  --gy:#6B7280;--gyl:#F3F4F6;--bd:#D1D5DB;
+  --tx:#1F2937;--red:#DC2626;--sh:0 2px 8px rgba(0,0,0,0.08);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F0F4EE;color:var(--tx);min-height:100vh;padding-bottom:80px;}
+.hdr{background:var(--gr);color:white;padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.25);}
+.hdr-logo{font-size:26px;}
+.hdr-title{font-size:20px;font-weight:800;}
+.hdr-sub{font-size:11px;opacity:0.7;}
+.hdr-sync{margin-left:auto;font-size:11px;opacity:0.8;display:flex;align-items:center;gap:4px;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#7BC67A;}
+.sync-dot.syncing{background:#FCD34D;animation:pulse 1s infinite;}
+.sync-dot.error{background:#F87171;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+.bnav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--bd);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.1);}
+.ni{flex:1;padding:10px 2px 8px;text-align:center;cursor:pointer;color:var(--gy);font-size:9px;font-weight:600;border-top:3px solid transparent;}
+.ni .ico{font-size:22px;display:block;margin-bottom:2px;}
+.ni.on{color:var(--gr);border-top-color:var(--gr);}
+
+.fab{position:fixed;bottom:90px;right:18px;width:56px;height:56px;background:var(--gem);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;box-shadow:0 4px 16px rgba(0,168,107,0.5);z-index:99;cursor:pointer;border:none;}
+
+.wrap{padding:14px;max-width:700px;margin:0 auto;}
+.pg{display:none;}.pg.on{display:block;}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:var(--sh);}
+.ctitle{font-size:14px;font-weight:700;color:var(--gr);margin-bottom:14px;}
+
+.fbar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;}
+.fbar::-webkit-scrollbar{display:none;}
+.fc{flex-shrink:0;padding:7px 14px;border:1.5px solid var(--bd);border-radius:20px;background:white;cursor:pointer;font-size:12px;font-weight:600;color:var(--gy);white-space:nowrap;}
+.fc.on{border-color:var(--gr);background:var(--gr);color:white;}
+
+.lh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.lt{font-size:13px;font-weight:700;color:var(--gy);}
+.ls{font-size:14px;font-weight:800;color:var(--gr);}
+
+.rec{background:white;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);cursor:pointer;}
+.rec-top{display:flex;align-items:flex-start;gap:12px;}
+.rico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rb{flex:1;min-width:0;}
+.rn{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rm{font-size:11px;color:var(--gy);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;}
+.rr{text-align:right;flex-shrink:0;}
+.ra{font-size:16px;font-weight:800;}
+.rd{font-size:11px;color:var(--gy);margin-top:2px;}
+.rnote{font-size:11px;color:#9CA3AF;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.bdg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.paid{background:#D1FAE5;color:#065F46;}.unpaid{background:#FEE2E2;color:#991B1B;}
+
+.empty{text-align:center;padding:48px 20px;color:var(--gy);}
+.empty-ico{font-size:48px;margin-bottom:12px;}
+
+.stabs{display:flex;background:var(--gyl);border-radius:10px;padding:3px;margin-bottom:14px;}
+.stab{flex:1;padding:8px 4px;text-align:center;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gy);}
+.stab.on{background:white;color:var(--gr);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+
+.wrk-day{background:white;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);cursor:pointer;}
+.wrk-header{display:flex;justify-content:space-between;margin-bottom:8px;}
+.wrk-date{font-size:13px;font-weight:700;color:var(--gr);}
+.wrk-obj{font-size:11px;color:var(--gy);}
+.wrk-brigade{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gyl);}
+.wrk-brigade:last-of-type{border-bottom:none;}
+.wrk-bname{font-size:13px;font-weight:600;}
+.wrk-bdet{font-size:11px;color:var(--gy);}
+.wrk-total{display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:2px solid var(--gyl);}
+
+.prog-card{background:white;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);cursor:pointer;}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:10px;}
+.prog-num{font-size:14px;font-weight:800;color:var(--gr);}
+.prog-item{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--gyl);font-size:12px;}
+.prog-item:last-child{border-bottom:none;}
+.prog-tank{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+.tA{background:#FEE2E2;color:#991B1B;}.tB{background:#DBEAFE;color:#1E40AF;}.tC{background:#D1FAE5;color:#065F46;}.tD{background:#EDE9FE;color:#5B21B6;}
+
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:flex-end;}
+.mov.on{display:flex;}
+.mo{background:white;border-radius:20px 20px 0 0;padding:20px 18px 36px;width:100%;max-width:700px;margin:0 auto;max-height:88vh;overflow-y:auto;}
+.mh{width:40px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 18px;}
+.mt{font-size:18px;font-weight:800;margin-bottom:6px;}
+.ma{font-size:28px;font-weight:900;color:var(--gr);margin-bottom:14px;}
+.mfield{margin-bottom:10px;}
+.mlabel{font-size:11px;font-weight:700;color:var(--gy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.mval{font-size:14px;}
+.mbtn-del{width:100%;padding:13px;background:#FEE2E2;color:var(--red);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;}
+.mbtn-move{width:100%;padding:10px;background:var(--gyl);color:var(--gy);border:1px solid var(--bd);border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;}
+
+.add-mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;align-items:flex-end;}
+.add-mov.on{display:flex;}
+.add-mo{background:white;border-radius:20px 20px 0 0;padding:20px 18px 36px;width:100%;max-width:700px;margin:0 auto;max-height:92vh;overflow-y:auto;}
+
+.frow{margin-bottom:14px;}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+label{display:block;font-size:11px;font-weight:700;color:var(--gy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:9px;font-size:15px;color:var(--tx);background:var(--gyl);-webkit-appearance:none;font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--grl);background:white;}
+textarea{resize:none;height:64px;}
+.finput-big{font-size:24px;font-weight:800;color:var(--gr);}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:8px 14px;border:2px solid var(--bd);border-radius:20px;background:white;cursor:pointer;font-size:13px;font-weight:600;color:var(--gy);white-space:nowrap;}
+.chip.on{border-color:var(--gr);background:var(--gr);color:white;}
+.btn-primary{width:100%;padding:15px;background:var(--gr);color:white;border:none;border-radius:11px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;}
+
+.brig-block{border:1.5px solid var(--bd);border-radius:10px;padding:13px;margin-bottom:10px;background:#FAFAFA;position:relative;}
+.brig-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.brig-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--gy);font-size:18px;cursor:pointer;}
+.add-brig{background:none;border:1.5px dashed var(--bd);border-radius:9px;padding:10px;width:100%;cursor:pointer;color:var(--gy);font-size:13px;font-weight:600;margin-top:4px;}
+
+.prog-item-form{border:1.5px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:8px;background:#FAFAFA;position:relative;}
+.prog-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;}
+.prog-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--gy);font-size:18px;cursor:pointer;}
+
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#065F46;color:white;padding:12px 24px;border-radius:24px;font-size:14px;font-weight:700;z-index:500;display:none;white-space:nowrap;}
+.toast.on{display:block;}
+.toast.err{background:#DC2626;}
+
+.add-types{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 16px;}
+.add-type{background:white;border:2px solid var(--bd);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;}
+.add-type .ati{font-size:28px;margin-bottom:6px;}
+.add-type .atn{font-size:13px;font-weight:700;}
+
+.set-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--gyl);cursor:pointer;}
+.set-item:last-child{border-bottom:none;}
+.set-count{font-size:12px;color:var(--gy);background:var(--gyl);padding:2px 8px;border-radius:10px;}
+
+.ac-wrap{position:relative;}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--grl);border-radius:0 0 9px 9px;z-index:50;max-height:160px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.ac-item{padding:10px 13px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--gyl);}
+.ac-item:hover{background:var(--grp);}
+
+.loading{text-align:center;padding:30px;color:var(--gy);font-size:13px;}
+.loading-spinner{font-size:24px;animation:spin 1s linear infinite;display:block;margin-bottom:8px;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">🌿</div>
+  <div><div class="hdr-title">AgroFull</div><div class="hdr-sub">Учёт агробизнеса</div></div>
+  <div class="hdr-sync"><div class="sync-dot" id="syncDot"></div><span id="syncStatus">Онлайн</span></div>
+</div>
+
+<div class="wrap">
+
+<div class="pg on" id="pg-mov">
+  <div class="fbar" id="fbar-mov">
+    <div class="fc on" data-f="all" onclick="flt(this,'mov')">Все</div>
+  </div>
+  <div class="lh"><div class="lt" id="mov-title">Все расходы</div><div class="ls" id="mov-sum"></div></div>
+  <div id="mov-list"></div>
+</div>
+
+<div class="pg" id="pg-wrk">
+  <div class="fbar" id="fbar-wrk">
+    <div class="fc on" data-f="all" onclick="flt(this,'wrk')">Все</div>
+  </div>
+  <div class="lh"><div class="lt" id="wrk-title">Все записи</div><div class="ls" id="wrk-sum"></div></div>
+  <div id="wrk-list"></div>
+</div>
+
+<div class="pg" id="pg-sal">
+  <div class="stabs">
+    <div class="stab on" onclick="salTab(this,'sal-ship')">📦 Отгрузки</div>
+    <div class="stab" onclick="salTab(this,'sal-pay')">💳 Выплаты</div>
+  </div>
+  <div id="sal-ship">
+    <div class="fbar">
+      <div class="fc on" data-f="all" onclick="flt(this,'ship')">Все</div>
+      <div class="fc" data-f="Перец" onclick="flt(this,'ship')">🌶 Перец</div>
+      <div class="fc" data-f="Клубника" onclick="flt(this,'ship')">🍓 Клубника</div>
+      <div class="fc" data-f="Бананы" onclick="flt(this,'ship')">🍌 Бананы</div>
+      <div class="fc" data-f="Арбуз" onclick="flt(this,'ship')">🍉 Арбуз</div>
+    </div>
+    <div class="lh"><div class="lt" id="ship-title">Отгрузки</div><div class="ls" id="ship-sum"></div></div>
+    <div id="ship-list"></div>
+  </div>
+  <div id="sal-pay" style="display:none">
+    <div class="lh"><div class="lt" id="pay-title">Выплаты</div><div class="ls" id="pay-sum"></div></div>
+    <div id="pay-list"></div>
+  </div>
+</div>
+
+<div class="pg" id="pg-chem">
+  <div class="stabs">
+    <div class="stab on" onclick="chemTab(this,'chem-hydro')">💧 Гидропоника</div>
+    <div class="stab" onclick="chemTab(this,'chem-other')">🌱 Другие культуры</div>
+  </div>
+  <div id="chem-hydro">
+    <div class="stabs">
+      <div class="stab on" onclick="hydroTab(this,'hydro-prog')">📋 Программы</div>
+      <div class="stab" onclick="hydroTab(this,'hydro-leaf')">🍃 Листовая</div>
+    </div>
+    <div id="hydro-prog">
+      <div class="fbar">
+        <div class="fc on" data-f="all" onclick="flt(this,'prog')">Все</div>
+        <div class="fc" data-f="Клубника 14" onclick="flt(this,'prog')">🍓 Клубника 14</div>
+        <div class="fc" data-f="Клубника 32" onclick="flt(this,'prog')">🍓 Клубника 32</div>
+      </div>
+      <div id="prog-list"></div>
+    </div>
+    <div id="hydro-leaf" style="display:none"><div id="leaf-hydro-list"></div></div>
+  </div>
+  <div id="chem-other" style="display:none">
+    <div class="stabs">
+      <div class="stab on" onclick="otherTab(this,'other-drip')">💧 Капля</div>
+      <div class="stab" onclick="otherTab(this,'other-leaf')">🍃 Лист</div>
+    </div>
+    <div id="other-drip">
+      <div class="fbar">
+        <div class="fc on" data-f="all" onclick="flt(this,'drip')">Все</div>
+        <div class="fc" data-f="Перец" onclick="flt(this,'drip')">🌶 Перец</div>
+        <div class="fc" data-f="Бананы" onclick="flt(this,'drip')">🍌 Бананы</div>
+      </div>
+      <div id="drip-list"></div>
+    </div>
+    <div id="other-leaf" style="display:none">
+      <div class="fbar">
+        <div class="fc on" data-f="all" onclick="flt(this,'leaf')">Все</div>
+        <div class="fc" data-f="Перец" onclick="flt(this,'leaf')">🌶 Перец</div>
+        <div class="fc" data-f="Бананы" onclick="flt(this,'leaf')">🍌 Бананы</div>
+      </div>
+      <div id="leaf-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="pg" id="pg-set">
+  <div class="card">
+    <div class="ctitle">⚙️ Настройки</div>
+    <div class="set-item" onclick="openSet('objects')"><span>🏢 Объекты</span><span><span class="set-count" id="cnt-obj">0</span> ›</span></div>
+    <div class="set-item" onclick="openSet('brigades')"><span>👷 Бригадиры</span><span><span class="set-count" id="cnt-brig">0</span> ›</span></div>
+    <div class="set-item" onclick="openSet('cultures')"><span>🌱 Культуры и сорта</span><span><span class="set-count" id="cnt-cult">0</span> ›</span></div>
+    <div class="set-item" onclick="openSet('buyers')"><span>🤝 Покупатели</span><span><span class="set-count" id="cnt-buy">0</span> ›</span></div>
+    <div class="set-item" onclick="openSet('chems')"><span>🧪 Справочник препаратов</span><span><span class="set-count" id="cnt-chem">0</span> ›</span></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">🔄 Синхронизация</div>
+    <div class="set-item" onclick="loadAll()"><span>📥 Загрузить данные из Sheets</span><span>›</span></div>
+    <div class="set-item" onclick="exportLocal()"><span>💾 Резервная копия (JSON)</span><span>›</span></div>
+  </div>
+</div>
+
+</div>
+
+<div class="bnav">
+  <div class="ni on" onclick="gp('mov',this)"><span class="ico">📋</span>Движение</div>
+  <div class="ni" onclick="gp('wrk',this)"><span class="ico">👷</span>Работники</div>
+  <div class="ni" onclick="gp('sal',this)"><span class="ico">📦</span>Реализация</div>
+  <div class="ni" onclick="gp('chem',this)"><span class="ico">🧪</span>Химжурнал</div>
+  <div class="ni" onclick="gp('set',this)"><span class="ico">⚙️</span>Настройки</div>
+</div>
+
+<button class="fab" onclick="openAdd()">＋</button>
+<div class="toast" id="toast"></div>
+
+<!-- VIEW MODAL -->
+<div class="mov" id="view-mov" onclick="if(event.target===this)closeView()">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt" id="vm-title"></div>
+    <div class="ma" id="vm-amt"></div>
+    <div id="vm-body"></div>
+    <button class="mbtn-move" id="vm-move" style="display:none" onclick="moveToMov()">📋 Перенести в Движение</button>
+    <button class="mbtn-del" onclick="deleteRec()">🗑 Удалить запись</button>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="add-mov" id="add-mov" onclick="if(event.target===this)closeAdd()">
+  <div class="add-mo">
+    <div class="mh"></div>
+    <div id="add-selector">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">Что добавить?</div>
+      <div class="add-types">
+        <div class="add-type" onclick="showForm('f-mov')"><div class="ati">💸</div><div class="atn">Движение</div></div>
+        <div class="add-type" onclick="showForm('f-wrk')"><div class="ati">👷</div><div class="atn">Работники</div></div>
+        <div class="add-type" onclick="showForm('f-ship')"><div class="ati">📦</div><div class="atn">Отгрузка</div></div>
+        <div class="add-type" onclick="showForm('f-pay')"><div class="ati">💳</div><div class="atn">Выплата</div></div>
+        <div class="add-type" onclick="showForm('f-prog')"><div class="ati">💧</div><div class="atn">Программа гидро</div></div>
+        <div class="add-type" onclick="showForm('f-chem')"><div class="ati">🌱</div><div class="atn">Химжурнал</div></div>
+      </div>
+    </div>
+
+    <!-- ДВИЖЕНИЕ -->
+    <div id="f-mov" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="backToSel()" style="background:none;border:none;font-size:22px;cursor:pointer;">‹</button>
+        <div style="font-size:16px;font-weight:800;">💸 Движение (расход)</div>
+      </div>
+      <div class="frow"><label>Объект</label><div class="chips" id="chips-obj-mov"></div></div>
+      <div class="f2">
+        <div><label>Сумма ₺</label><input type="number" id="m-amt" class="finput-big" placeholder="0" inputmode="numeric"></div>
+        <div><label>Дата</label><input type="date" id="m-date"></div>
+      </div>
+      <div class="frow"><label>Наименование</label><input type="text" id="m-name" placeholder="Что куплено / оплачено..."></div>
+      <div class="frow"><label>Примечание</label><textarea id="m-note" placeholder="Контрагент, детали, чек..."></textarea></div>
+      <button class="btn-primary" onclick="saveMove()">✅ Сохранить</button>
+    </div>
+
+    <!-- РАБОТНИКИ -->
+    <div id="f-wrk" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="backToSel()" style="background:none;border:none;font-size:22px;cursor:pointer;">‹</button>
+        <div style="font-size:16px;font-weight:800;">👷 Работники</div>
+      </div>
+      <div class="frow"><label>Объект</label><div class="chips" id="chips-obj-wrk"></div></div>
+      <div class="f2">
+        <div><label>Дата</label><input type="date" id="w-date"></div>
+        <div><label>Вид работ</label><input type="text" id="w-type" placeholder="Сбор, посадка..."></div>
+      </div>
+      <div id="brig-rows"></div>
+      <button class="add-brig" onclick="addBrigRow()">＋ Добавить бригаду</button>
+      <div style="display:flex;justify-content:space-between;padding:10px;background:var(--grp);border-radius:8px;margin:12px 0 4px;">
+        <span style="font-weight:700;font-size:13px;">ИТОГО:</span>
+        <span style="font-weight:800;font-size:16px;color:var(--gr)" id="wrk-total-calc">0 ₺</span>
+      </div>
+      <div class="frow"><label>Примечание</label><textarea id="w-note" placeholder="Детали..."></textarea></div>
+      <button class="btn-primary" onclick="saveWrk()">✅ Сохранить</button>
+    </div>
+
+    <!-- ОТГРУЗКА -->
+    <div id="f-ship" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="backToSel()" style="background:none;border:none;font-size:22px;cursor:pointer;">‹</button>
+        <div style="font-size:16px;font-weight:800;">📦 Отгрузка</div>
+      </div>
+      <div class="frow"><label>Культура</label><div class="chips" id="chips-obj-ship"></div></div>
+      <div class="f2">
+        <div><label>Сорт</label><input type="text" id="s-sort" placeholder="Чарли, Капия..."></div>
+        <div><label>1с / 2с / Чикма</label>
+          <select id="s-grade"><option>1 сорт</option><option>2 сорт</option><option>Чикма</option></select>
+        </div>
+      </div>
+      <div class="f3">
+        <div><label>Ящиков</label><input type="number" id="s-boxes" placeholder="0" inputmode="numeric" oninput="calcSal()"></div>
+        <div><label>Вес кг</label><input type="number" id="s-weight" placeholder="0" inputmode="numeric" oninput="calcSal()"></div>
+        <div><label>Цена ₺/кг</label><input type="number" id="s-price" placeholder="0" inputmode="numeric" oninput="calcSal()"></div>
+      </div>
+      <div class="f2">
+        <div><label>Сумма ₺</label><input type="number" id="s-amt" class="finput-big" placeholder="0" inputmode="numeric"></div>
+        <div><label>Дата</label><input type="date" id="s-date"></div>
+      </div>
+      <div class="frow"><label>Покупатель</label>
+        <div class="ac-wrap">
+          <input type="text" id="s-buyer" placeholder="Джамалеттин, Агромикс..." oninput="ac(this,'buyers','s-buyer-ac')">
+          <div class="ac-list" id="s-buyer-ac"></div>
+        </div>
+      </div>
+      <div class="f2">
+        <div><label>№ чека</label><input type="text" id="s-check" placeholder="9871..."></div>
+        <div><label>Статус</label>
+          <select id="s-status"><option value="unpaid">Не оплачено</option><option value="paid">Оплачено</option></select>
+        </div>
+      </div>
+      <div class="frow"><label>Примечание</label><textarea id="s-note" placeholder="Детали..."></textarea></div>
+      <button class="btn-primary" onclick="saveShip()">✅ Сохранить</button>
+    </div>
+
+    <!-- ВЫПЛАТА -->
+    <div id="f-pay" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="backToSel()" style="background:none;border:none;font-size:22px;cursor:pointer;">‹</button>
+        <div style="font-size:16px;font-weight:800;">💳 Выплата от покупателя</div>
+      </div>
+      <div class="f2">
+        <div><label>Сумма ₺</label><input type="number" id="p-amt" class="finput-big" placeholder="0" inputmode="numeric"></div>
+        <div><label>Дата</label><input type="date" id="p-date"></div>
+      </div>
+      <div class="frow"><label>Покупатель</label>
+        <div class="ac-wrap">
+          <input type="text" id="p-buyer" placeholder="Джамалеттин, Агромикс..." oninput="ac(this,'buyers','p-buyer-ac')">
+          <div class="ac-list" id="p-buyer-ac"></div>
+        </div>
+      </div>
+      <div class="frow"><label>Способ</label>
+        <select id="p-method"><option>IBAN перевод</option><option>Наличные</option><option>Чек</option></select>
+      </div>
+      <div class="frow"><label>Примечание</label><textarea id="p-note" placeholder="Детали..."></textarea></div>
+      <button class="btn-primary" onclick="savePay()">✅ Сохранить</button>
+    </div>
+
+    <!-- ПРОГРАММА ГИДРО -->
+    <div id="f-prog" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="backToSel()" style="background:none;border:none;font-size:22px;cursor:pointer;">‹</button>
+        <div style="font-size:16px;font-weight:800;">💧 Программа гидропоники</div>
+      </div>
+      <div class="frow"><label>Объект</label>
+        <div class="chips">
+          <div class="chip on" data-v="Клубника 14" onclick="sc(this,'hydro-obj')">🍓 Клубника 14</div>
+          <div class="chip" data-v="Клубника 32" onclick="sc(this,'hydro-obj')">🍓 Клубника 32</div>
+        </div>
+      </div>
+      <div class="f2">
+        <div><label>№ Программы</label><input type="number" id="prog-num" placeholder="1" inputmode="numeric"></div>
+        <div><label>Дата</label><input type="date" id="prog-date"></div>
+      </div>
+      <div id="prog-items-rows"></div>
+      <button class="add-brig" onclick="addProgItem()">＋ Добавить препарат</button>
+      <div class="frow" style="margin-top:10px"><label>Примечание</label><textarea id="prog-note" placeholder="Детали..."></textarea></div>
+      <button class="btn-primary" onclick="saveProg()">✅ Сохранить программу</button>
+    </div>
+
+    <!-- ХИМЖУРНАЛ -->
+    <div id="f-chem" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="backToSel()" style="background:none;border:none;font-size:22px;cursor:pointer;">‹</button>
+        <div style="font-size:16px;font-weight:800;">🌱 Химжурнал</div>
+      </div>
+      <div class="frow"><label>Раздел</label>
+        <div class="chips">
+          <div class="chip on" data-v="Листовая гидро" onclick="sc(this,'chem-sec')">🍃 Листовая гидро</div>
+          <div class="chip" data-v="Капля" onclick="sc(this,'chem-sec')">💧 Капля</div>
+          <div class="chip" data-v="Лист" onclick="sc(this,'chem-sec')">🍃 Лист</div>
+        </div>
+      </div>
+      <div class="frow"><label>Объект</label><div class="chips" id="chips-obj-chem"></div></div>
+      <div class="f2">
+        <div><label>Дата</label><input type="date" id="c-date"></div>
+        <div><label>Способ</label>
+          <select id="c-method"><option>Капля</option><option>По листу</option><option>м400</option></select>
+        </div>
+      </div>
+      <div class="frow"><label>Препарат</label>
+        <div class="ac-wrap">
+          <input type="text" id="c-name" placeholder="Malathion, Sivanto..." oninput="ac(this,'chems','c-name-ac')">
+          <div class="ac-list" id="c-name-ac"></div>
+        </div>
+      </div>
+      <div class="f2">
+        <div><label>Дозировка</label><input type="text" id="c-dose" placeholder="100г/100л..."></div>
+        <div><label>Факт внесения</label><input type="date" id="c-fact"></div>
+      </div>
+      <div class="frow"><label>Применение / Примечание</label><textarea id="c-note" placeholder="Против чего, детали..."></textarea></div>
+      <button class="btn-primary" onclick="saveChem()">✅ Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="mov" id="set-mov" onclick="if(event.target===this)closeSetMov()">
+  <div class="mo">
+    <div class="mh"></div>
+    <div class="mt" id="set-mov-title"></div>
+    <div id="set-mov-body"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <input type="text" id="set-new-val" placeholder="Новое значение..." style="flex:1">
+      <button onclick="addSetItem()" style="padding:11px 16px;background:var(--gr);color:white;border:none;border-radius:9px;font-weight:700;cursor:pointer;">＋</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG - Google Sheets URL
+// ============================================================
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbw8ZDYnDwNAQ74MWzNeApjfyB6-7m0BzwBK6gS8Gdr7O0n_zZKRZr9qF6h7kX2XZ2K-/exec';
+
+// ============================================================
+// LOCAL DATA CACHE
+// ============================================================
+var D = {
+  mov:   JSON.parse(localStorage.getItem('af_mov')||'[]'),
+  wrk:   JSON.parse(localStorage.getItem('af_wrk')||'[]'),
+  ships: JSON.parse(localStorage.getItem('af_ships')||'[]'),
+  pays:  JSON.parse(localStorage.getItem('af_pays')||'[]'),
+  progs: JSON.parse(localStorage.getItem('af_progs')||'[]'),
+  chems: JSON.parse(localStorage.getItem('af_chems')||'[]'),
+};
+
+var CFG = {
+  objects:  JSON.parse(localStorage.getItem('cfg_objects')||'["Перец","Клубника 14","Клубника 32","Бананы"]'),
+  brigades: JSON.parse(localStorage.getItem('cfg_brigades')||'["Чавуш","Хусейн","Ханым","Аднан"]'),
+  cultures: JSON.parse(localStorage.getItem('cfg_cultures')||'["Перец","Клубника","Бананы","Арбуз"]'),
+  buyers:   JSON.parse(localStorage.getItem('cfg_buyers')||'["Джамалеттин","Агромикс","Мигрос"]'),
+  chems:    JSON.parse(localStorage.getItem('cfg_chems')||'["Malathion","Sivanto","Moonmite","Decis","Calcium Nitrat","MKP 0:52:34","Magnezyum Sulfat","Potasyum Nitrat","Ferron","Quadris","Signum","Bifentraz","Shifa","Rutinex","Alphanox"]'),
+};
+
+var ST = {
+  flt:{mov:'all',wrk:'all',ship:'all',drip:'all',leaf:'all',prog:'all'},
+  view:{type:null,id:null},
+  setKey:null,
+  'obj-mov':null,'obj-wrk':null,'obj-ship':null,'obj-chem':null,
+  'hydro-obj':'Клубника 14','chem-sec':'Листовая гидро',
+};
+
+function svLocal(){
+  Object.keys(D).forEach(k=>localStorage.setItem('af_'+k,JSON.stringify(D[k])));
+}
+function svCfg(){
+  Object.keys(CFG).forEach(k=>localStorage.setItem('cfg_'+k,JSON.stringify(CFG[k])));
+}
+
+// ============================================================
+// GOOGLE SHEETS SYNC
+// ============================================================
+function setSyncStatus(status){
+  var dot=document.getElementById('syncDot');
+  var txt=document.getElementById('syncStatus');
+  dot.className='sync-dot';
+  if(status==='syncing'){dot.classList.add('syncing');txt.textContent='Сохранение...';}
+  else if(status==='ok'){txt.textContent='Синхронизировано';}
+  else if(status==='offline'){dot.style.background='#F87171';txt.textContent='Офлайн';}
+  else if(status==='error'){dot.classList.add('error');txt.textContent='Ошибка';}
+}
+
+async function pushToSheets(sheetName, row){
+  setSyncStatus('syncing');
+  try {
+    var url=SHEET_URL+'?action=append&sheet='+encodeURIComponent(sheetName)+'&row='+encodeURIComponent(JSON.stringify(row));
+    var resp = await fetch(url, {redirect:'follow'});
+    var text = await resp.text();
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('offline');
+    toast('📵 Офлайн — данные сохранены локально',false);
+  }
+}
+
+async function deleteFromSheets(sheetName, id){
+  try {
+    var url=SHEET_URL+'?action=delete&sheet='+encodeURIComponent(sheetName)+'&id='+encodeURIComponent(id);
+    await fetch(url, {redirect:'follow'});
+  } catch(e) {}
+}
+
+async function loadAll(){
+  toast('⏳ Загрузка данных...');
+  setSyncStatus('syncing');
+  var sheets = {mov:'MOVE',wrk:'WORKERS',ships:'SHIPMENTS',pays:'PAYMENTS',progs:'PROGRAMS',chems:'CHEMLOG'};
+  try {
+    for(var key in sheets){
+      var resp = await fetch(SHEET_URL+'?action=read&sheet='+encodeURIComponent(sheets[key]), {redirect:'follow'});
+      var data = await resp.json();
+      if(data.ok && data.data){
+        // Parse rows back to objects
+        D[key] = data.data.filter(r=>r[0]).map(r=>parseRow(key,r));
+      }
+    }
+    svLocal();
+    rMov();rWrk();rShip();rPay();rProg();rLeafHydro();rDrip();rLeaf();
+    setSyncStatus('ok');
+    toast('✅ Данные загружены');
+  } catch(e){
+    setSyncStatus('error');
+    toast('❌ Ошибка загрузки',true);
+  }
+}
+
+function parseRow(type,r){
+  if(type==='mov') return {id:r[0],date:r[1],obj:r[2],name:r[3],amt:parseFloat(r[4])||0,note:r[5]||''};
+  if(type==='wrk') return {id:r[0],date:r[1],obj:r[2],type:r[3],brigades:tryJSON(r[4],[]),total:parseFloat(r[5])||0,note:r[6]||''};
+  if(type==='ships') return {id:r[0],date:r[1],obj:r[2],sort:r[3],grade:r[4],boxes:r[5],weight:r[6],price:r[7],amt:parseFloat(r[8])||0,buyer:r[9],check:r[10],status:r[11],note:r[12]||''};
+  if(type==='pays') return {id:r[0],date:r[1],buyer:r[2],amt:parseFloat(r[3])||0,method:r[4],note:r[5]||''};
+  if(type==='progs') return {id:r[0],date:r[1],obj:r[2],num:parseInt(r[3])||0,items:tryJSON(r[4],[]),note:r[5]||''};
+  if(type==='chems') return {id:r[0],date:r[1],sec:r[2],obj:r[3],name:r[4],dose:r[5],method:r[6],fact:r[7],note:r[8]||''};
+  return {};
+}
+function tryJSON(s,def){try{return JSON.parse(s)||def;}catch(e){return def;}}
+
+// ============================================================
+// UTILS
+// ============================================================
+function fm(n){return Number(n||0).toLocaleString('ru-RU')+' ₺';}
+function fd(d){if(!d)return'';if(d.includes('.'))return d;var p=d.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
+function td(){return new Date().toISOString().split('T')[0];}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+
+function toast(msg,isErr){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast on'+(isErr?' err':'');
+  setTimeout(()=>t.className='toast',2500);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function gp(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  el.classList.add('on');
+}
+function flt(el,type){
+  el.closest('.fbar').querySelectorAll('.fc').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  ST.flt[type]=el.dataset.f;
+  ({mov:rMov,wrk:rWrk,ship:rShip,drip:rDrip,leaf:rLeaf,prog:rProg})[type]?.();
+}
+function salTab(el,id){
+  document.querySelectorAll('#pg-sal > .stabs .stab').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('sal-ship').style.display=id==='sal-ship'?'block':'none';
+  document.getElementById('sal-pay').style.display=id==='sal-pay'?'block':'none';
+  if(id==='sal-pay')rPay();
+}
+function chemTab(el,id){
+  el.closest('.stabs').querySelectorAll('.stab').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('chem-hydro').style.display=id==='chem-hydro'?'block':'none';
+  document.getElementById('chem-other').style.display=id==='chem-other'?'block':'none';
+}
+function hydroTab(el,id){
+  el.closest('.stabs').querySelectorAll('.stab').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('hydro-prog').style.display=id==='hydro-prog'?'block':'none';
+  document.getElementById('hydro-leaf').style.display=id==='hydro-leaf'?'block':'none';
+  if(id==='hydro-leaf')rLeafHydro();
+}
+function otherTab(el,id){
+  el.closest('.stabs').querySelectorAll('.stab').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('other-drip').style.display=id==='other-drip'?'block':'none';
+  document.getElementById('other-leaf').style.display=id==='other-leaf'?'block':'none';
+  if(id==='other-drip')rDrip(); else rLeaf();
+}
+
+// ============================================================
+// ADD MODAL
+// ============================================================
+function openAdd(){
+  backToSel();
+  document.getElementById('add-mov').classList.add('on');
+  initChips();
+  ['m-date','w-date','s-date','p-date','prog-date','c-date','c-fact'].forEach(id=>{
+    var e=document.getElementById(id);if(e)e.value=td();
+  });
+  initBrigRows();
+  initProgItems();
+}
+function closeAdd(){document.getElementById('add-mov').classList.remove('on');}
+function showForm(id){
+  document.getElementById('add-selector').style.display='none';
+  ['f-mov','f-wrk','f-ship','f-pay','f-prog','f-chem'].forEach(f=>document.getElementById(f).style.display='none');
+  document.getElementById(id).style.display='block';
+}
+function backToSel(){
+  document.getElementById('add-selector').style.display='block';
+  ['f-mov','f-wrk','f-ship','f-pay','f-prog','f-chem'].forEach(f=>document.getElementById(f).style.display='none');
+}
+
+function initChips(){
+  function makeChips(containerId, items, stateKey, prefix){
+    var el=document.getElementById(containerId);
+    if(!el)return;
+    el.innerHTML=items.map((o,i)=>`<div class="chip ${i===0?'on':''}" data-v="${o}" onclick="sc(this,'${stateKey}')">${prefix||''}${o}</div>`).join('');
+    ST[stateKey]=items[0]||'';
+  }
+  makeChips('chips-obj-mov',CFG.objects,'obj-mov');
+  makeChips('chips-obj-wrk',CFG.objects,'obj-wrk');
+  makeChips('chips-obj-ship',CFG.cultures,'obj-ship');
+  makeChips('chips-obj-chem',CFG.objects,'obj-chem');
+  updateObjFilters();
+}
+
+function sc(el,key){
+  el.closest('.chips').querySelectorAll('.chip').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  ST[key]=el.dataset.v;
+}
+
+function initBrigRows(){
+  document.getElementById('brig-rows').innerHTML='';
+  addBrigRow();
+}
+function addBrigRow(){
+  var idx=uid();
+  var row=document.createElement('div');
+  row.className='brig-block';
+  row.innerHTML=`<button class="brig-del" onclick="this.closest('.brig-block').remove();calcWrk()">✕</button>
+    <div class="brig-grid">
+      <div><label>Бригадир</label>
+        <div class="ac-wrap"><input type="text" placeholder="Чавуш, Хусейн..." class="brig-name" oninput="ac(this,'brigades','bac-${idx}');calcWrk()">
+        <div class="ac-list" id="bac-${idx}"></div></div>
+      </div>
+      <div><label>Чел.</label><input type="number" placeholder="0" class="brig-cnt" inputmode="numeric" oninput="calcWrk()"></div>
+      <div><label>Сумма ₺</label><input type="number" placeholder="0" class="brig-amt" inputmode="numeric" oninput="calcWrk()"></div>
+    </div>
+    <div><label>Транспорт ₺</label><input type="number" placeholder="0" class="brig-tr" inputmode="numeric" oninput="calcWrk()"></div>`;
+  document.getElementById('brig-rows').appendChild(row);
+}
+function calcWrk(){
+  var t=0;
+  document.querySelectorAll('#brig-rows .brig-block').forEach(b=>{
+    var amt=parseFloat(b.querySelector('.brig-amt').value)||0;
+    var tr=parseFloat(b.querySelector('.brig-tr').value)||0;
+    var cnt=parseInt(b.querySelector('.brig-cnt').value)||1;
+    t+=amt+tr;
+  });
+  document.getElementById('wrk-total-calc').textContent=t.toLocaleString('ru-RU')+' ₺';
+}
+
+function initProgItems(){
+  document.getElementById('prog-items-rows').innerHTML='';
+  addProgItem();
+}
+function addProgItem(){
+  var idx=uid();
+  var row=document.createElement('div');
+  row.className='prog-item-form';
+  row.innerHTML=`<button class="prog-del" onclick="this.closest('.prog-item-form').remove()">✕</button>
+    <div class="prog-grid">
+      <div><label>Препарат</label>
+        <div class="ac-wrap"><input type="text" placeholder="Calcium Nitrat..." class="pi-name" oninput="ac(this,'chems','pac-${idx}')">
+        <div class="ac-list" id="pac-${idx}"></div></div>
+      </div>
+      <div><label>Бак</label><select class="pi-tank"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+      <div><label>Доза/1000л</label><input type="text" placeholder="75 кг" class="pi-dose"></div>
+    </div>`;
+  document.getElementById('prog-items-rows').appendChild(row);
+}
+
+var _acInputs={};
+function ac(input,cfgKey,listId){
+  var val=input.value.toLowerCase().trim();
+  var list=document.getElementById(listId);
+  if(!list){return;}
+  _acInputs[listId]=input;
+  if(!val){list.innerHTML='';return;}
+  var matches=CFG[cfgKey].filter(x=>x.toLowerCase().includes(val)).slice(0,6);
+  list.innerHTML=matches.map(m=>`<div class="ac-item" onmousedown="acPick(event,'${listId}',${JSON.stringify(m)})">${m}</div>`).join('');
+}
+function acPick(e,listId,val){
+  e.preventDefault();
+  var inp=_acInputs[listId];
+  if(inp){inp.value=val;inp.dispatchEvent(new Event('input'));}
+  var list=document.getElementById(listId);
+  if(list)list.innerHTML='';
+  calcWrk();
+}
+function calcSal(){
+  var w=parseFloat(document.getElementById('s-weight').value)||0;
+  var p=parseFloat(document.getElementById('s-price').value)||0;
+  if(w&&p)document.getElementById('s-amt').value=Math.round(w*p);
+}
+
+// ============================================================
+// SAVE FUNCTIONS
+// ============================================================
+async function saveMove(){
+  var amt=parseFloat(document.getElementById('m-amt').value);
+  var name=document.getElementById('m-name').value.trim();
+  if(!amt||amt<=0){alert('Введите сумму');return;}
+  if(!name){alert('Введите наименование');return;}
+  var id=uid();
+  var rec={id,obj:ST['obj-mov'],amt,name,date:document.getElementById('m-date').value,note:document.getElementById('m-note').value.trim()};
+  D.mov.unshift(rec); svLocal(); rMov(); closeAdd();
+  toast('💸 Расход добавлен');
+  await pushToSheets('MOVE',[id,rec.date,rec.obj,rec.name,rec.amt,rec.note]);
+  document.getElementById('m-amt').value='';document.getElementById('m-name').value='';document.getElementById('m-note').value='';
+}
+
+async function saveWrk(){
+  var brigades=[],total=0;
+  document.querySelectorAll('#brig-rows .brig-block').forEach(b=>{
+    var nm=b.querySelector('.brig-name').value.trim();
+    var cnt=parseInt(b.querySelector('.brig-cnt').value)||0;
+    var amt=parseFloat(b.querySelector('.brig-amt').value)||0;
+    var tr=parseFloat(b.querySelector('.brig-tr').value)||0;
+    if(nm&&amt>0){brigades.push({nm,cnt,amt,tr});total+=amt+tr;}
+  });
+  if(!brigades.length){alert('Добавьте хотя бы одну бригаду');return;}
+  brigades.forEach(b=>{if(!CFG.brigades.includes(b.nm)){CFG.brigades.push(b.nm);svCfg();}});
+  var id=uid();
+  var rec={id,obj:ST['obj-wrk'],date:document.getElementById('w-date').value,type:document.getElementById('w-type').value.trim(),brigades,total,note:document.getElementById('w-note').value.trim()};
+  D.wrk.unshift(rec); svLocal(); rWrk(); closeAdd();
+  toast('👷 Запись добавлена');
+  await pushToSheets('WORKERS',[id,rec.date,rec.obj,rec.type,JSON.stringify(brigades),total,rec.note]);
+}
+
+async function saveShip(){
+  var amt=parseFloat(document.getElementById('s-amt').value);
+  var buyer=document.getElementById('s-buyer').value.trim();
+  if(!amt||amt<=0){alert('Введите сумму');return;}
+  if(!buyer){alert('Введите покупателя');return;}
+  if(!CFG.buyers.includes(buyer)){CFG.buyers.push(buyer);svCfg();}
+  var id=uid();
+  var rec={id,obj:ST['obj-ship'],sort:document.getElementById('s-sort').value.trim(),grade:document.getElementById('s-grade').value,
+    boxes:parseInt(document.getElementById('s-boxes').value)||0,weight:parseFloat(document.getElementById('s-weight').value)||0,
+    price:parseFloat(document.getElementById('s-price').value)||0,amt,date:document.getElementById('s-date').value,
+    buyer,check:document.getElementById('s-check').value.trim(),status:document.getElementById('s-status').value,
+    note:document.getElementById('s-note').value.trim()};
+  D.ships.unshift(rec); svLocal(); rShip(); closeAdd();
+  toast('📦 Отгрузка добавлена');
+  await pushToSheets('SHIPMENTS',[id,rec.date,rec.obj,rec.sort,rec.grade,rec.boxes,rec.weight,rec.price,rec.amt,rec.buyer,rec.check,rec.status,rec.note]);
+  ['s-sort','s-boxes','s-weight','s-price','s-amt','s-buyer','s-check','s-note'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});
+}
+
+async function savePay(){
+  var amt=parseFloat(document.getElementById('p-amt').value);
+  var buyer=document.getElementById('p-buyer').value.trim();
+  if(!amt||amt<=0){alert('Введите сумму');return;}
+  if(!buyer){alert('Введите покупателя');return;}
+  if(!CFG.buyers.includes(buyer)){CFG.buyers.push(buyer);svCfg();}
+  var id=uid();
+  var rec={id,amt,date:document.getElementById('p-date').value,buyer,method:document.getElementById('p-method').value,note:document.getElementById('p-note').value.trim()};
+  D.pays.unshift(rec); svLocal(); rPay(); closeAdd();
+  toast('💳 Выплата добавлена');
+  await pushToSheets('PAYMENTS',[id,rec.date,rec.buyer,rec.amt,rec.method,rec.note]);
+  document.getElementById('p-amt').value='';document.getElementById('p-buyer').value='';document.getElementById('p-note').value='';
+}
+
+async function saveProg(){
+  var num=parseInt(document.getElementById('prog-num').value);
+  if(!num){alert('Введите номер программы');return;}
+  var items=[];
+  document.querySelectorAll('#prog-items-rows .prog-item-form').forEach(r=>{
+    var nm=r.querySelector('.pi-name').value.trim();
+    var tank=r.querySelector('.pi-tank').value;
+    var dose=r.querySelector('.pi-dose').value.trim();
+    if(nm){items.push({nm,tank,dose});if(!CFG.chems.includes(nm)){CFG.chems.push(nm);svCfg();}}
+  });
+  if(!items.length){alert('Добавьте хотя бы один препарат');return;}
+  var id=uid();
+  var rec={id,obj:ST['hydro-obj'],num,date:document.getElementById('prog-date').value,items,note:document.getElementById('prog-note').value.trim()};
+  D.progs.unshift(rec); svLocal(); rProg(); closeAdd();
+  toast('💧 Программа сохранена');
+  await pushToSheets('PROGRAMS',[id,rec.date,rec.obj,rec.num,JSON.stringify(items),rec.note]);
+  document.getElementById('prog-num').value='';document.getElementById('prog-note').value='';
+}
+
+async function saveChem(){
+  var name=document.getElementById('c-name').value.trim();
+  if(!name){alert('Введите препарат');return;}
+  if(!CFG.chems.includes(name)){CFG.chems.push(name);svCfg();}
+  var id=uid();
+  var rec={id,sec:ST['chem-sec'],obj:ST['obj-chem'],name,date:document.getElementById('c-date').value,
+    method:document.getElementById('c-method').value,dose:document.getElementById('c-dose').value.trim(),
+    fact:document.getElementById('c-fact').value,note:document.getElementById('c-note').value.trim()};
+  D.chems.unshift(rec); svLocal();
+  if(rec.sec==='Листовая гидро')rLeafHydro(); else if(rec.sec==='Капля')rDrip(); else rLeaf();
+  closeAdd(); toast('🌱 Запись добавлена');
+  await pushToSheets('CHEMLOG',[id,rec.date,rec.sec,rec.obj,rec.name,rec.dose,rec.method,rec.fact,rec.note]);
+  document.getElementById('c-name').value='';document.getElementById('c-dose').value='';document.getElementById('c-note').value='';
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function rMov(){
+  var f=ST.flt.mov;
+  var list=f==='all'?D.mov:D.mov.filter(r=>r.obj===f);
+  var total=list.reduce((s,r)=>s+r.amt,0);
+  document.getElementById('mov-title').textContent=(f==='all'?'Все расходы':f)+' ('+list.length+')';
+  document.getElementById('mov-sum').textContent=list.length?fm(total):'';
+  var el=document.getElementById('mov-list');
+  if(!list.length){el.innerHTML=empty('📋','Нет расходов.<br>Нажмите ＋ чтобы добавить.');return;}
+  el.innerHTML=list.map(r=>`<div class="rec" onclick="openView('mov','${r.id}')">
+    <div class="rec-top"><div class="rico" style="background:#FEF3C7">💸</div>
+    <div class="rb"><div class="rn">${r.name}</div><div class="rm"><span>🏢 ${r.obj}</span></div>${r.note?`<div class="rnote">${r.note}</div>`:''}</div>
+    <div class="rr"><div class="ra">${fm(r.amt)}</div><div class="rd">${fd(r.date)}</div></div></div></div>`).join('');
+}
+
+function rWrk(){
+  var f=ST.flt.wrk;
+  var list=f==='all'?D.wrk:D.wrk.filter(r=>r.obj===f);
+  var total=list.reduce((s,r)=>s+r.total,0);
+  document.getElementById('wrk-title').textContent=(f==='all'?'Все записи':f)+' ('+list.length+')';
+  document.getElementById('wrk-sum').textContent=list.length?fm(total):'';
+  var el=document.getElementById('wrk-list');
+  if(!list.length){el.innerHTML=empty('👷','Нет записей по работникам.');return;}
+  el.innerHTML=list.map(r=>`<div class="wrk-day" onclick="openView('wrk','${r.id}')">
+    <div class="wrk-header"><div><div class="wrk-date">${fd(r.date)}</div><div class="wrk-obj">🏢 ${r.obj}</div></div><div class="ra">${fm(r.total)}</div></div>
+    ${r.type?`<div style="font-size:13px;font-weight:600;margin-bottom:8px">🔨 ${r.type}</div>`:''}
+    ${r.brigades.map(b=>`<div class="wrk-brigade"><div><div class="wrk-bname">👤 ${b.nm}${b.cnt?' ('+b.cnt+' чел.)':''}</div>${b.tr?`<div class="wrk-bdet">🚐 ${fm(b.tr)}</div>`:''}</div><div style="font-weight:700">${fm(b.amt)}</div></div>`).join('')}
+    <div class="wrk-total"><span style="font-weight:700">ИТОГО</span><span style="font-weight:800;color:var(--gr)">${fm(r.total)}</span></div>
+  </div>`).join('');
+}
+
+function rShip(){
+  var f=ST.flt.ship;
+  var list=f==='all'?D.ships:D.ships.filter(r=>r.obj===f||r.obj.includes(f));
+  var total=list.reduce((s,r)=>s+r.amt,0);
+  document.getElementById('ship-title').textContent=(f==='all'?'Все отгрузки':f)+' ('+list.length+')';
+  document.getElementById('ship-sum').textContent=list.length?fm(total):'';
+  var el=document.getElementById('ship-list');
+  if(!list.length){el.innerHTML=empty('📦','Нет отгрузок.');return;}
+  el.innerHTML=list.map(r=>`<div class="rec" onclick="openView('ship','${r.id}')">
+    <div class="rec-top"><div class="rico" style="background:#ECFDF5">📦</div>
+    <div class="rb"><div class="rn">${r.sort||r.obj} — ${r.buyer}</div>
+    <div class="rm"><span class="bdg ${r.status==='paid'?'paid':'unpaid'}">${r.status==='paid'?'Оплачено':'Не оплачено'}</span><span>${r.grade}</span>${r.weight?`<span>⚖️ ${r.weight} кг</span>`:''}</div>${r.check?`<div class="rnote">Чек: ${r.check}</div>`:''}</div>
+    <div class="rr"><div class="ra">${fm(r.amt)}</div><div class="rd">${fd(r.date)}</div></div></div></div>`).join('');
+}
+
+function rPay(){
+  var list=D.pays;
+  var total=list.reduce((s,r)=>s+r.amt,0);
+  document.getElementById('pay-title').textContent='Выплаты ('+list.length+')';
+  document.getElementById('pay-sum').textContent=list.length?fm(total):'';
+  var el=document.getElementById('pay-list');
+  if(!list.length){el.innerHTML=empty('💳','Нет выплат.');return;}
+  el.innerHTML=list.map(r=>`<div class="rec" onclick="openView('pay','${r.id}')">
+    <div class="rec-top"><div class="rico" style="background:#EFF6FF">💳</div>
+    <div class="rb"><div class="rn">${r.buyer}</div><div class="rm"><span>${r.method}</span></div>${r.note?`<div class="rnote">${r.note}</div>`:''}</div>
+    <div class="rr"><div class="ra" style="color:#2563EB">${fm(r.amt)}</div><div class="rd">${fd(r.date)}</div></div></div></div>`).join('');
+}
+
+function rProg(){
+  var f=ST.flt.prog;
+  var list=f==='all'?D.progs:D.progs.filter(r=>r.obj===f);
+  var el=document.getElementById('prog-list');
+  if(!list.length){el.innerHTML=empty('💧','Нет программ гидропоники.');return;}
+  el.innerHTML=list.sort((a,b)=>a.num-b.num).map(r=>`<div class="prog-card" onclick="openView('prog','${r.id}')">
+    <div class="prog-header"><div class="prog-num">Prog ${r.num} — ${r.obj}</div><div style="font-size:12px;color:var(--gy)">${fd(r.date)}</div></div>
+    ${r.items.map(i=>`<div class="prog-item"><div class="prog-tank t${i.tank}">${i.tank}</div><div style="flex:1;font-weight:600">${i.nm}</div><div style="color:var(--gy);font-size:11px">${i.dose}</div></div>`).join('')}
+    ${r.note?`<div style="font-size:11px;color:var(--gy);margin-top:8px">${r.note}</div>`:''}
+  </div>`).join('');
+}
+
+function rLeafHydro(){
+  var list=D.chems.filter(r=>r.sec==='Листовая гидро');
+  var el=document.getElementById('leaf-hydro-list');
+  el.innerHTML=list.length?list.map(r=>chemRec(r)).join(''):empty('🍃','Нет записей листовой обработки.');
+}
+function rDrip(){
+  var f=ST.flt.drip;
+  var list=D.chems.filter(r=>r.sec==='Капля'&&(f==='all'||r.obj===f));
+  var el=document.getElementById('drip-list');
+  el.innerHTML=list.length?list.map(r=>chemRec(r)).join(''):empty('💧','Нет записей капельного внесения.');
+}
+function rLeaf(){
+  var f=ST.flt.leaf;
+  var list=D.chems.filter(r=>r.sec==='Лист'&&(f==='all'||r.obj===f));
+  var el=document.getElementById('leaf-list');
+  el.innerHTML=list.length?list.map(r=>chemRec(r)).join(''):empty('🍃','Нет записей листовой обработки.');
+}
+function chemRec(r){
+  return `<div class="rec" onclick="openView('chem','${r.id}')">
+    <div class="rec-top"><div class="rico" style="background:${r.sec==='Капля'?'#DBEAFE':'#D1FAE5'}">${r.sec==='Капля'?'💧':'🍃'}</div>
+    <div class="rb"><div class="rn">${r.name}</div><div class="rm"><span>🏢 ${r.obj}</span><span>${r.dose||''}</span></div>${r.note?`<div class="rnote">${r.note}</div>`:''}</div>
+    <div class="rr"><div class="rd">${fd(r.date)}</div>${r.fact&&r.fact!==r.date?`<div class="rd">→ ${fd(r.fact)}</div>`:''}</div></div></div>`;
+}
+function empty(ico,msg){return `<div class="empty"><div class="empty-ico">${ico}</div><p>${msg}</p></div>`;}
+
+// ============================================================
+// VIEW MODAL
+// ============================================================
+function openView(type,id){
+  ST.view={type,id};
+  var r,title,amt='',body='',showMove=false;
+  if(type==='mov'){r=D.mov.find(x=>x.id===id);if(!r)return;title='💸 '+r.name;amt=fm(r.amt);body=mf('Объект',r.obj)+mf('Дата',fd(r.date))+(r.note?mf('Примечание',r.note):'');}
+  else if(type==='wrk'){
+    r=D.wrk.find(x=>x.id===id);if(!r)return;title='👷 '+(r.type||'Работники');amt=fm(r.total);showMove=true;
+    var bl=r.brigades.map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--gyl)"><div><div style="font-weight:600">👤 ${b.nm}${b.cnt?' · '+b.cnt+' чел.':''}</div>${b.tr?`<div style="font-size:12px;color:var(--gy)">🚐 ${fm(b.tr)}</div>`:''}</div><div style="font-weight:700">${fm(b.amt)}</div></div>`).join('');
+    body=mf('Объект',r.obj)+mf('Дата',fd(r.date))+(r.type?mf('Вид работ',r.type):'')+`<div class="mlabel" style="margin:10px 0 6px">БРИГАДЫ</div>${bl}`+(r.note?mf('Примечание',r.note):'');
+  }
+  else if(type==='ship'){r=D.ships.find(x=>x.id===id);if(!r)return;title='📦 '+(r.sort||r.obj);amt=fm(r.amt);body=mf('Покупатель',r.buyer)+mf('Культура',r.obj+' '+r.sort+' ('+r.grade+')')+mf('Вес',r.weight+' кг')+mf('Цена',r.price+' ₺/кг')+mf('Дата',fd(r.date))+(r.check?mf('Чек',r.check):'')+mf('Статус',r.status==='paid'?'✅ Оплачено':'⏳ Не оплачено')+(r.note?mf('Примечание',r.note):'');}
+  else if(type==='pay'){r=D.pays.find(x=>x.id===id);if(!r)return;title='💳 '+r.buyer;amt=fm(r.amt);body=mf('Покупатель',r.buyer)+mf('Дата',fd(r.date))+mf('Способ',r.method)+(r.note?mf('Примечание',r.note):'');}
+  else if(type==='prog'){r=D.progs.find(x=>x.id===id);if(!r)return;title='💧 Prog '+r.num+' — '+r.obj;
+    var items=r.items.map(i=>`<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--gyl)"><div class="prog-tank t${i.tank}">${i.tank}</div><div style="flex:1;font-size:13px;font-weight:600">${i.nm}</div><div style="font-size:12px;color:var(--gy)">${i.dose}</div></div>`).join('');
+    body=mf('Объект',r.obj)+mf('Дата',fd(r.date))+`<div class="mlabel" style="margin:10px 0 6px">ПРЕПАРАТЫ</div>${items}`+(r.note?mf('Примечание',r.note):'');
+  }
+  else if(type==='chem'){r=D.chems.find(x=>x.id===id);if(!r)return;title=(r.sec==='Капля'?'💧':'🍃')+' '+r.name;body=mf('Объект',r.obj)+mf('Раздел',r.sec)+mf('Дата',fd(r.date))+mf('Способ',r.method)+(r.dose?mf('Дозировка',r.dose):'')+(r.fact?mf('Факт внесения',fd(r.fact)):'')+(r.note?mf('Применение',r.note):'');}
+  document.getElementById('vm-title').textContent=title;
+  document.getElementById('vm-amt').textContent=amt;
+  document.getElementById('vm-body').innerHTML=body;
+  document.getElementById('vm-move').style.display=showMove?'block':'none';
+  document.getElementById('view-mov').classList.add('on');
+}
+function mf(label,val){return `<div class="mfield"><div class="mlabel">${label}</div><div class="mval">${val}</div></div>`;}
+function closeView(){document.getElementById('view-mov').classList.remove('on');}
+
+async function deleteRec(){
+  if(!confirm('Удалить эту запись?'))return;
+  var {type,id}=ST.view;
+  var map={mov:'mov',wrk:'wrk',ship:'ships',pay:'pays',prog:'progs',chem:'chems'};
+  var sheetMap={mov:'MOVE',wrk:'WORKERS',ship:'SHIPMENTS',pay:'PAYMENTS',prog:'PROGRAMS',chem:'CHEMLOG'};
+  var key=map[type];
+  D[key]=D[key].filter(r=>r.id!==id);
+  svLocal(); closeView();
+  ({mov:rMov,wrk:rWrk,ship:rShip,pay:rPay,prog:rProg})[type]?.();
+  if(type==='chem'){rLeafHydro();rDrip();rLeaf();}
+  toast('🗑 Удалено');
+  await deleteFromSheets(sheetMap[type]||'MOVE',id);
+}
+
+async function moveToMov(){
+  var r=D.wrk.find(x=>x.id===ST.view.id);if(!r)return;
+  if(!confirm('Перенести итог '+fm(r.total)+' в Движение?'))return;
+  var id=uid();
+  var rec={id,obj:r.obj,amt:r.total,name:'Работники — '+(r.type||r.brigades.map(b=>b.nm).join(', ')),date:r.date,note:'Перенесено из вкладки Работники'};
+  D.mov.unshift(rec); svLocal(); rMov(); closeView();
+  toast('📋 Перенесено в Движение');
+  await pushToSheets('MOVE',[id,rec.date,rec.obj,rec.name,rec.amt,rec.note]);
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+var SET_LABELS={objects:'🏢 Объекты',brigades:'👷 Бригадиры',cultures:'🌱 Культуры',buyers:'🤝 Покупатели',chems:'🧪 Препараты'};
+function openSet(key){
+  ST.setKey=key;
+  document.getElementById('set-mov-title').textContent=SET_LABELS[key];
+  renderSetList();
+  document.getElementById('set-new-val').value='';
+  document.getElementById('set-mov').classList.add('on');
+}
+function renderSetList(){
+  var list=CFG[ST.setKey]||[];
+  document.getElementById('set-mov-body').innerHTML=list.length?
+    list.map((item,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gyl)"><span>${item}</span><button onclick="delSetItem(${i})" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">✕</button></div>`).join(''):
+    '<div style="color:var(--gy);text-align:center;padding:20px;font-size:13px">Список пуст</div>';
+  updateSetCounts();
+}
+function addSetItem(){
+  var val=document.getElementById('set-new-val').value.trim();
+  if(!val)return;
+  if(!CFG[ST.setKey].includes(val)){CFG[ST.setKey].push(val);svCfg();}
+  document.getElementById('set-new-val').value='';
+  renderSetList(); updateObjFilters();
+}
+function delSetItem(idx){CFG[ST.setKey].splice(idx,1);svCfg();renderSetList();}
+function closeSetMov(){document.getElementById('set-mov').classList.remove('on');}
+function updateSetCounts(){
+  document.getElementById('cnt-obj').textContent=CFG.objects.length;
+  document.getElementById('cnt-brig').textContent=CFG.brigades.length;
+  document.getElementById('cnt-cult').textContent=CFG.cultures.length;
+  document.getElementById('cnt-buy').textContent=CFG.buyers.length;
+  document.getElementById('cnt-chem').textContent=CFG.chems.length;
+}
+function updateObjFilters(){
+  var fbarMov=document.getElementById('fbar-mov');
+  if(fbarMov){
+    fbarMov.innerHTML='<div class="fc on" data-f="all" onclick="flt(this,\'mov\')">Все</div>'+
+      CFG.objects.map(o=>`<div class="fc" data-f="${o}" onclick="flt(this,'mov')">${o}</div>`).join('');
+  }
+  var fbarWrk=document.getElementById('fbar-wrk');
+  if(fbarWrk){
+    fbarWrk.innerHTML='<div class="fc on" data-f="all" onclick="flt(this,\'wrk\')">Все</div>'+
+      CFG.objects.map(o=>`<div class="fc" data-f="${o}" onclick="flt(this,'wrk')">${o}</div>`).join('');
+  }
+}
+function exportLocal(){
+  var data=JSON.stringify({D,CFG,exported:new Date().toISOString()},null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='agrofull_backup_'+td()+'.json';a.click();
+  toast('💾 Резервная копия сохранена');
+}
+
+// INIT
+rMov();rWrk();rShip();rPay();rProg();rLeafHydro();rDrip();rLeaf();
+updateSetCounts();updateObjFilters();
+setSyncStatus('ok');
+</script>
+</body>
+</html>
